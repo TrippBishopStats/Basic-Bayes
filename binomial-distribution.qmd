@@ -1,0 +1,57 @@
+---
+title: "Exploring the binomial distribution"
+author: "Tripp Bishop"
+format: html
+---
+
+A probability distribution measures the probability of the occurrence of different outcomes related to types of events that the distribution is trying to model. Given some outcome, the distribution will assign a probability value to that event. But how does this work? While different probability distributions model different situations, they all have some things in common.
+## Some probability distribution basics
+All probability distribution follow a few basic rules, regardless of whether they are continuous or discrete distributions. First, the value of the density or mass function must always be positive. There cannot be a negative likelihood at any point in the distribution. Second, the probability function must either sum (discrete) or integrate (continuous) to 1. Finally, when dealing with continuous distributions, the probability of a single outcome is 0. We can only talk about ranges of outcomes (however small the range might be) when dealing with continuous probability distributions.
+## The binomial distribution
+The binomial distribution models systems where there are events occurring that can have one of two possible outcomes. Typically, we define one of the outcomes as "success" and the other as "failure", but these labels can be applied in any way that you want and "success" isn't necessarily a good thing. For example, "success" could mean contracting a disease. The binomial distribution has two parameters: $n$, the number of trials or events, and $p$ the probability of "success". We often denote this $B(n,p)$ for short. 
+
+The binomial distribution tells us how probable different numbers of success are. For example, in 20 trials, how likely is it to roll 8 20s on a 20-sided die if the die is fair? In this case,  would write the distribution as $B(20, 0.05)$ because we have 20 trials and there is a 5% chance of rolling a 20 on each trial. Note that the order of successes and failures doesn't matter.
+
+Let's consider an experiment. Say that we have 5 trials and we want to know the probability of getting 2 heads and then 3 tails:
+
+$$
+HHTTT
+$$
+We know that these are independent events and that we want 
+$$
+P(heads, heads, tails, tails, tails)
+$$
+We know from the rules of probability that $\neg heads = tails = 1 - P(heads)$ and that since we want the intersection of these events, the *product rule* can be used to evaluate the probability of all of these events occurring.
+$$
+P(heads)*P(heads)*(1 - P(heads))*(1 - P(heads))*(1 - P(heads))
+$$
+We can group the like terms here to simply the expression down to
+$$
+P(heads)^2(1-P(heads))^3
+$$
+We can generalise this to $k$ successes in $n$ trials 
+$$
+P(heads)^k(1-P(heads))^{(n-k)}
+$$
+And now the last thing that we need to do in order to determine the probability of $k$ success in $n$ trials is to allow for the fact that we don't care about the order of the successes and failures. We can use the binomial coefficient for this.
+$$
+\binom{n}{k} = \frac{n!}{k!(n-k)!}
+$$
+What this tells us is all the ways that we can arrange $k$ items from a pool of $n$. We say $n$ choose $k$. So in our experiment, we have
+$$
+\binom{5}{2} = \frac{5!}{2!(5-2)!} = \frac{5!}{2!3!} = \frac{5*4}{2} = 10
+$$
+So there are 10 possible orders in which we could get 2 heads from 5 trials. Therefore, do determine the probability of getting a specific number of successes in a binomial distribution, we have:
+
+$$
+\binom{n}{k}p^k(1-p)^{n-k}
+$$
+where $p$ is the probability of success.
+
+Now, to create a probability mass function that accumulates the probabilities for all possible number of success in $n$ trials, we have
+$$
+P(x) = \sum^n_{x=0}\binom{n}{x}p^x(1-p)^{n-x}
+$$
+This PMF must satisfies the rules of probability mass functions and it does. It is always positive and the sum of the individual values of $x$ is 1.
+
+## Exercises

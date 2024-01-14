@@ -1,0 +1,107 @@
+---
+title: "Experimenting with the beta distribution"
+author: "Tripp Bishop"
+format: html
+---
+```{r}
+#| message: false
+#| echo: false
+
+library(tidyverse)
+library(latex2exp)
+theme_set(theme_minimal())
+```
+
+
+The beta distribution is related to the binomial distribution in that it uses successes and failures to determine a probability, but it is a continuous distribution. What it does is determine the probability that the successes and failures measured come from a binomial distribution with the specified probability of success. For example, if you have observed 7 successes and 12 failures, the beta distribution will tell you the probability that the probability of success was, say, 50% or 30%. It is a continuous distribution with two arguments, $\alpha$ and $\beta$ which are the observed successes and failures. The total number of trails then is $\alpha + \beta$.
+
+So given  $\alpha$ and $\beta$ , the distribution will tell you what the most likely probability of success is. In some ways it's like the binomial distribution in reverse, given some data, what is the probability of success vs given a probability and number of trials what is the probability of seeing $x$ successes.
+
+The beta distribution allows us to do statistical inference on the data that we have observed. Inference is the foundation of statistics. We almost never know the probabilities of the events we're interested in occurring, all we have is the data we have collected. The beta distribution allows us to make sense of data we have observed and lets us infer the probabilities behind the data we have collected.
+
+```{r}
+x <- seq(from=0, to=1, by=0.01)
+y <- dbeta(x,14,27)
+
+tibble(x,y) |> 
+  ggplot(aes(x,y)) +
+    geom_line(linewidth=1)
+
+```
+
+## Exercises
+
+> 1. You want to use the beta distribution to determine whether or not a coin you have is a fair coin - meaning that the coin gives you heads and tails equally. You flip the coin 10 times and get 4 heads and 6 tails. Using the beta distribution, what is the probability that the coin will land on heads more than 60 percent of the time?
+
+```{r}
+alpha <- 4
+beta <- 6
+
+y <- dbeta(x, alpha, beta)
+
+tibble(x,y) |> 
+  ggplot(aes(x,y)) +
+  geom_line(linewidth=1) +
+  # geom_vline(xintercept = 0.6, colour="red", linewidth=1) +
+  geom_segment(aes(x=0.6,xend=0.6,y=0,yend=dbeta(0.6, alpha, beta)), colour="red", linewidth=1) +
+  geom_ribbon(data=tibble(x=x[x>=0.6], y=dbeta(x[x>= 0.6], alpha, beta)), aes(x, ymin=0, ymax=y), alpha=0.4, fill="red")
+```
+The area of the shaded region under the curve is `r round(pbeta(0.6, alpha, beta, lower.tail=FALSE), 2)`. So it is not likely that this coin will produce a heads 60% of the time.
+
+>2. You flip the coin 10 more times and now have 9 heads and 11 tails total. What is the probability that the coin is fair, using our definition of fair, give or take 5%?
+
+Given this new data, the probability that the coin is fair is now `r round(pbeta(0.55, 9, 11) - pbeta(0.45, 9, 11), 2)`.
+
+```{r}
+
+```
+
+>3. Data is the best way to become more confident in your assertions. Your flip the coin 200 more times and end up with 109 heads and 111 tails. Now what is the probability that the coin is fair, give or take 5%?
+
+Now, with so many more observations, the probability that the coin is fair is `r round(pbeta(0.55, 109, 111) - pbeta(0.45, 109, 111), 2)`.
+
+
+```{r}
+alpha <- 109
+beta <- 111
+
+y <- dbeta(x, alpha, beta)
+
+tibble(x,y) |> 
+  ggplot(aes(x,y)) +
+  geom_line(linewidth=1) +
+  # geom_vline(xintercept = 0.6, colour="red", linewidth=1) +
+  geom_segment(aes(x=0.45,xend=0.45,y=0,yend=dbeta(0.45, alpha, beta)), colour="red", linewidth=1) +
+  geom_segment(aes(x=0.55,xend=0.55,y=0,yend=dbeta(0.55, alpha, beta)), colour="red", linewidth=1) +
+  geom_ribbon(data=tibble(x=x[x>=0.45 & x<= 0.55], y=dbeta(x[x>=0.45 & x<= 0.55], alpha, beta)), aes(x, ymin=0, ymax=y), alpha=0.4, fill="red")
+```
+
+The plot below shows how the probability distribution starts to "gather" around 0.5 as the amount of data increases. With a small amount of data, it's hard to pin down what the underlying distribution is. There is a lot of uncertainty about the probability of a heads in this case. As the data comes in, however, we get more and more confident that the probability is close to 0.5. The peak in probability around 0.5 given 220 observations shows how the amount of data constrains the likely values of the probability.
+
+
+```{r}
+#| warning: false
+y_1 = dbeta(x, 4,6)
+y_2 = dbeta(x, 9,11)
+y_3 = dbeta(x, 109,111)
+
+tibble(x, y_1, y_2, y_3) |> 
+  ggplot(aes(x)) +
+    geom_line(aes(y=y_1), linewidth=1, colour="blue") +
+    geom_line(aes(y=y_2), linewidth=1, colour="red") +
+    geom_line(aes(y=y_3), linewidth=1) +
+    annotate(geom="text", x=0.22, y=2.5, label=TeX("($\\alpha = 4$,$\\beta = 6$)")) +
+    annotate(geom="text", x=0.35, y=3.8, label=TeX("($\\alpha = 9$,$\\beta = 11$)")) +
+    annotate(geom="text", x=0.625, y=10.75, label=TeX("($\\alpha = 109$,$\\beta = 111$)")) +
+    labs(
+      y = "Likelihood",
+      x = "Probability"
+    )
+```
+
+
+
+
+
+
+
