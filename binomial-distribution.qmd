@@ -4,9 +4,19 @@ author: "Tripp Bishop"
 format: html
 ---
 
+```{r}
+#| message: false
+
+library(tidyverse)
+theme_set(theme_minimal())
+```
+
+
 A probability distribution measures the probability of the occurrence of different outcomes related to types of events that the distribution is trying to model. Given some outcome, the distribution will assign a probability value to that event. But how does this work? While different probability distributions model different situations, they all have some things in common.
+
 ## Some probability distribution basics
 All probability distribution follow a few basic rules, regardless of whether they are continuous or discrete distributions. First, the value of the density or mass function must always be positive. There cannot be a negative likelihood at any point in the distribution. Second, the probability function must either sum (discrete) or integrate (continuous) to 1. Finally, when dealing with continuous distributions, the probability of a single outcome is 0. We can only talk about ranges of outcomes (however small the range might be) when dealing with continuous probability distributions.
+
 ## The binomial distribution
 The binomial distribution models systems where there are events occurring that can have one of two possible outcomes. Typically, we define one of the outcomes as "success" and the other as "failure", but these labels can be applied in any way that you want and "success" isn't necessarily a good thing. For example, "success" could mean contracting a disease. The binomial distribution has two parameters: $n$, the number of trials or events, and $p$ the probability of "success". We often denote this $B(n,p)$ for short. 
 
@@ -54,4 +64,26 @@ P(x) = \sum^n_{x=0}\binom{n}{x}p^x(1-p)^{n-x}
 $$
 This PMF must satisfies the rules of probability mass functions and it does. It is always positive and the sum of the individual values of $x$ is 1.
 
+## Example distributions
+
+
 ## Exercises
+
+> 1. What are the parameters of the binomial distribution for the probability of rolling either a 1 or a 20 on a 20-sided die, if we roll the die 12 times.
+
+
+
+> 2. There are four aces in a deck of 52 cards. If you pull a card, return the card, then reshuffle and pull a card again, how many ways can you pull just one ace in five pulls?
+
+
+> 3. For the example in question 2, what is the probability of pulling five aces in 10 pulls (remember that we're sampling with replacement here.)?
+
+
+> 4. When you're searhing fo a new job, it's always helpful to have more than one offer on the table so you can use it in negotiations. If you have 1/5 probability of receiving a job offer when you interview, and you interview with seven companies in a a month, what is the probability you'll have at least two competing offers by the end of that month?
+
+
+
+> 5. You get a bunch of recruiter emails and find out you have 25 interviews lined up in the next month. Unfortunately, you know this will leave you exhausted, and the probability of getting an offer will drop to 1/10 if you're tired.You really don't want to go on this many interviews unless you are at least twice as likely to get at least two competing offers. Are you more lkely to get at least two offers if you for 25 inteviews, or stick to just 7?
+
+
+
