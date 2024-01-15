@@ -71,19 +71,43 @@ This PMF must satisfies the rules of probability mass functions and it does. It 
 
 > 1. What are the parameters of the binomial distribution for the probability of rolling either a 1 or a 20 on a 20-sided die, if we roll the die 12 times.
 
-
+$n=12$, $p=1/10$, $B(12, 0.1)$.
 
 > 2. There are four aces in a deck of 52 cards. If you pull a card, return the card, then reshuffle and pull a card again, how many ways can you pull just one ace in five pulls?
 
+$$
+\binom{5}{1} = \frac{5!}{1!(5-1)!} = \frac{5}{1} = 5
+$$
+There are 5 possible ways to draw 1 ace from 5 pulls.
 
 > 3. For the example in question 2, what is the probability of pulling five aces in 10 pulls (remember that we're sampling with replacement here.)?
 
+Since we're dealing with replacement, the probability of pulling a ace from the deck remains constant at 1/13. We can use the binomial distribution to determine this probability. Here, the number of trials is 10 and the number of successes is 5. The probability of success is 1/13.
+
+```{r}
+prob_5_aces <- choose(10, 5)*(1/13)^5*(1-1/13)^5
+```
+
+The probability of this happening is about $p=`r round(prob_5_aces, 4)`$.
 
 > 4. When you're searhing fo a new job, it's always helpful to have more than one offer on the table so you can use it in negotiations. If you have 1/5 probability of receiving a job offer when you interview, and you interview with seven companies in a a month, what is the probability you'll have at least two competing offers by the end of that month?
 
+Here, the probability of a success is $p=1/5$, the number of trials (interviews) is $n=7$ and the number of offers (successes) is $x=2$.
+
+The probability that this will be the situation at the end of the month is
+
+$$
+p(x\geq2) = \sum^7_{x=2}\binom{7}{x}(1/5)^x(1-1/5)^{7-x}.
+$$
+The probability then is $p=`r round(pbinom(1, 7, 0.2, lower.tail = FALSE), 3)`.
+
+> 5. You get a bunch of recruiter emails and find out you have 25 interviews lined up in the next month. Unfortunately, you know this will leave you exhausted, and the probability of getting an offer will drop to 1/10 if you're tired. You really don't want to go on this many interviews unless you are at least twice as likely to get at least two competing offers. Are you more likely to get at least two offers if you go for 25 inteviews, or stick to just 7?
+
+The probability of getting a least 2 offers in this new situation is given by
 
 
-> 5. You get a bunch of recruiter emails and find out you have 25 interviews lined up in the next month. Unfortunately, you know this will leave you exhausted, and the probability of getting an offer will drop to 1/10 if you're tired.You really don't want to go on this many interviews unless you are at least twice as likely to get at least two competing offers. Are you more lkely to get at least two offers if you for 25 inteviews, or stick to just 7?
-
-
+$$
+p(x\geq2) = \sum^{25}_{x=2}\binom{25}{x}(1/5)^x(1-1/5)^{25-x}.
+$$
+This results in a probability of $p=`r round(pbinom(1,25,0.1, lower.tail = FALSE), 3)`$. This probability is quite a bit higher than the previous case, but it is not twice as high and so it is better to stick to just 7 interviews.
 
