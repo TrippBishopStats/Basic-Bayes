@@ -4,6 +4,13 @@ format: html
 theme: sandstone
 ---
 
+```{r setup}
+library(tidyverse)
+library(latex2exp)
+theme_set(theme_minimal())
+```
+
+
 ## Notes
 
 ## Exercises Chapter 12
@@ -67,3 +74,44 @@ What is the probability that there is no well (i.e the well is really 0 meters d
 pnorm(0, time_mean, time_sd)
 ```
 There really isn't a reason to mistrust the normal distribution assumption here, so we might consider if the data are bad.
+
+
+```{r}
+#| warning: false
+x <- seq(from=-4, to=4, by=0.01)
+y1 <- dnorm(x)
+y2 <- dnorm(x, 0, 0.5)
+y3 <- dnorm(x, 0, 2)
+tibble(x=x,y1=y1, y2=y2, y3=y3) |> 
+  pivot_longer(cols=-x, names_to = "y", values_to = "vals") |> 
+  ggplot(aes(x=x,y=vals)) +
+  geom_line(aes(colour=y, linetype=y), linewidth=1) +
+  annotate("text", x=1.40, y=0.24, label=TeX("$\\sigma=1$")) +
+  annotate("text", x=0.8, y=0.62, label=TeX("$\\sigma=0.5$")) +
+  annotate("text", x=3, y=0.11, label=TeX("$\\sigma=2$")) +
+  labs(
+    x="x",
+    y="y"
+  ) +
+  theme(
+    legend.position = "none"
+  )
+```
+```{r}
+#| warning: false
+df <- tibble(x=x,y=y1)
+df |> 
+  ggplot(aes(x=x,y=y)) +
+  geom_line(linewidth=1) +
+  geom_ribbon(data=subset(df, x>=-1 & x<=1), aes(x=x, ymin=0,ymax=y), alpha=0.4, fill="steelblue") +
+  annotate("text", x=1.40, y=0.24, label=TeX("$\\sigma=1$")) +
+  labs(
+    x="x",
+    y="y"
+  ) +
+  theme(
+    legend.position = "none"
+  )
+```
+
+
