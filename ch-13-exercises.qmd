@@ -1,0 +1,73 @@
+---
+title: "PDF, CDF, & Quantile Function"
+author: "Tripp Bishop"
+format: html
+editor: visual
+---
+
+## Exercises
+
+### Problem 1
+Using the code example for plotting the PDF on page 127, plot the CDF and quantile functions.
+
+### Example code
+```{r example code}
+xs <- seq(from=0.005, to=0.01, by=0.00001)
+plot(xs, dbeta(xs, 300, 40000-300), type = 'l', lwd=3)
+```
+
+```{r CDF}
+q <- seq(from=0, to=0.01, by=0.0001)
+plot(q, pbeta(q, 300, 40000-300), type = 'l', lwd=3)
+```
+
+We need to restrict our domain a bit here or the graph is extremely unwieldy.
+```{r}
+p <- seq(from=0.0004, to=0.9999, by=0.0001)
+plot(p, qbeta(p, 300, 40000-300), type = 'l', lwd=3)
+```
+### Problem 2
+Returning to the task of measuring snowfall from Chapter 10, say you have the following measurements (in inches) of snowfall:
+
+$$
+7.8, 9.4, 10.0, 7.9, 9.4, 7.0, 7.0, 7.1, 8.9, 7.4
+$$
+What is your 99.9 percent confidence interval for the true value of snowfall?
+
+
+To begin, we will make the assumption that the normal distribution is a decent model of the distribution of snow fall. This means we need to determine the two parameters that define the distribution, $\mu$ and $\sigma$.
+```{r}
+snow_fall <- c(7.8, 9.4, 10.0, 7.9, 9.4, 7.0, 7.0, 7.1, 8.9, 7.4)
+mean_snowfall <- mean(snow_fall)
+stdev <- sqrt(sum((snow_fall - mean_snowfall)^2)/length(snow_fall)) 
+stdev <- sd(snow_fall)
+```
+
+Now, we can use the quantile function to give us the quantiles that correspond with the 0.0005 and 0.9995 probabilities. Together, these values will give us the 99.9 percent confidence interval of the true mean value of the snowfall.
+
+```{r}
+list(
+  lower_bound=qnorm(0.0005, mean=mean_snowfall, sd=stdev),
+  upper_bound=qnorm(0.9995, mean=mean_snowfall, sd=stdev)
+)
+```
+
+### Problem 3
+A child is going door to door selling candy bars. So far, she has visited 30 houses and sold 10 candy bars. She will visit 40 more houses today. What is the 95 percent confidence interval for how many candy bars she will sell the rest of the day?
+
+```{r}
+conf_int <- list(
+  lower_bound=qbeta(0.025, 10, 20),
+  upper_bound=qbeta(0.975, 10, 20)
+)
+conf_int
+```
+```{r}
+sales_range <- list(
+  lower_bound = conf_int$lower_bound*40,
+  upper_bound = conf_int$upper_bound*40
+)
+
+sales_range
+```
+
