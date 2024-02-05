@@ -87,7 +87,7 @@ tibble(x=xs, y=ys) |>
   ggplot(aes(x=x, y=y)) +
   geom_line(linewidth=1) +
   labs(
-    x="Probability",
+    x="Quantile",
     y="Likelihood",
     title=TeX("PDF for $\\beta(300, 39700)$ distribution")
   )
@@ -96,12 +96,15 @@ tibble(x=xs, y=ys) |>
 CDF for $\beta(300, 39700)$ distribution.
 
 ```{r}
-q <- seq(from=0, to=0.01, by=0.0001)
+q <- seq(from=0.005, to=0.01, by=0.0001)
 ys <- pbeta(q, 300, 40000-300)
 
 tibble(x=q, y=ys) |> 
   ggplot(aes(x=x, y=y)) +
   geom_line(linewidth=1) +
+  geom_segment(aes(x=0.007491793, xend=0.007491793, y=0, yend=0.5),linetype="dashed") +
+  geom_segment(aes(x=0.005, xend=0.007491793, y=0.5, yend=0.5),linetype="dashed") +
+  annotate("text", x=0.0085, y=0.5, label="Estimate the median value\n by reading over from the y-axis\nto the curve and then down\nto the x-axis.") + 
   labs(
     x="Quantiles",
     y="Cumulative Probability",
@@ -118,6 +121,9 @@ ys <- qbeta(p, 300, 40000-300)
 tibble(x=p, y=ys) |> 
   ggplot(aes(x=x, y=y)) +
   geom_line(linewidth=1) +
+  geom_segment(aes(x=0.5, xend=0.5, y=0.006137202, yend=0.007491793),linetype="dashed") +
+  geom_segment(aes(x=0, xend=0.5, y=0.007491793, yend=0.007491793),linetype="dashed") +
+  annotate("text", x=0.0625, y=0.0076, label=TeX("q=0.0075")) +
   labs(
     x="Cumulative Probability",
     y="Quantile",
