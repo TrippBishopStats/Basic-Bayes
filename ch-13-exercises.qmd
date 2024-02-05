@@ -71,3 +71,57 @@ sales_range <- list(
 sales_range
 ```
 
+## Resources for notes
+```{r}
+library(tidyverse)
+library(latex2exp)
+theme_set(theme_minimal())
+```
+
+PDF for $\beta(300, 39700)$ distribution.
+```{r}
+xs <- seq(from=0.005, to=0.01, by=0.00001)
+ys <- dbeta(xs, 300, 40000-300)
+
+tibble(x=xs, y=ys) |> 
+  ggplot(aes(x=x, y=y)) +
+  geom_line(linewidth=1) +
+  labs(
+    x="Probability",
+    y="Likelihood",
+    title=TeX("PDF for $\\beta(300, 39700)$ distribution")
+  )
+```
+
+CDF for $\beta(300, 39700)$ distribution.
+
+```{r}
+q <- seq(from=0, to=0.01, by=0.0001)
+ys <- pbeta(q, 300, 40000-300)
+
+tibble(x=q, y=ys) |> 
+  ggplot(aes(x=x, y=y)) +
+  geom_line(linewidth=1) +
+  labs(
+    x="Quantiles",
+    y="Cumulative Probability",
+    title=TeX("CDF for $\\beta(300, 39700)$ distribution")
+  )
+```
+
+Quantile function for $\beta(300, 39700)$ distribution.
+
+```{r}
+p <- seq(from=0.0004, to=0.9999, by=0.0001)
+ys <- qbeta(p, 300, 40000-300)
+
+tibble(x=p, y=ys) |> 
+  ggplot(aes(x=x, y=y)) +
+  geom_line(linewidth=1) +
+  labs(
+    x="Cumulative Probability",
+    y="Quantile",
+    title=TeX("Quantile function for $\\beta(300, 39700)$ distribution")
+  )
+```
+
