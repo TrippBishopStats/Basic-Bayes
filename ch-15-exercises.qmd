@@ -1,0 +1,34 @@
+---
+title: "Hypothesis Testing: Building a Bayesian A/B Test"
+author: "Tripp Bishop"
+format: html
+editor: visual
+---
+
+## Exercises
+
+### Problem 1
+Suppose a director of marketing with many years of experience tells you he believes very strongly that the variant without images (B) won't perform any differently than the original variant. How could you account for this in our odel? Implement this change and see how your final conclusions change as well.
+
+```{r}
+
+```
+
+
+
+
+### Problem 2
+The lead designer sees your results and insists that there's no way that variant B should perform better with no images. She feels that you should assume the conversion frate for variant B is closer to 20 percent than 30 percent. Implement a solution fo this and again review the results of our analysis.
+
+
+
+### Problem 3
+Assume that being 95 percent certain means that your're more or less "convinced" of a hypothesis. Also assume that there's no longer any limit to the number of emails you can send in your test. If the true conversion for A is 0.25 and B is 0.3, explore how mnay samples it would take to convince the director of marketing that B was in fact superior. Explore the same for the lead designer. You can generate samples of conversions with the following R snippet:
+
+```{r}
+true.rate <- 0.25
+number.of.samples <- 100
+results <- runif(number.of.samples) <= true.rate
+```
+
+
