@@ -5,30 +5,214 @@ format: html
 editor: visual
 ---
 
-## Exercises
-
-### Problem 1
-Suppose a director of marketing with many years of experience tells you he believes very strongly that the variant without images (B) won't perform any differently than the original variant. How could you account for this in our odel? Implement this change and see how your final conclusions change as well.
 
 ```{r}
+n.trials <- 100000
 
+experiments <- list(
+  a.successes = 36,
+  a.failures = 114,
+  b.successes = 50,
+  b.failures = 100
+)
+
+ab_experiment <- function(data, prior.a.alpha, prior.a.beta, prior.b.alpha=NULL, prior.b.beta=NULL) {
+  
+  if (is.null(prior.b.alpha)) {
+    prior.b.alpha <- prior.a.alpha
+  }
+  
+  if (is.null(prior.b.beta)) {
+    prior.b.beta <- prior.a.beta
+  }
+  
+  
+  A.successes <- data$a.successes
+  A.failures <- data$a.failures
+  B.successes <- data$b.successes
+  B.failures <- data$b.failures
+  
+  a.samples <- rbeta(n.trials, A.successes+prior.a.alpha, A.failures+prior.a.beta)
+  b.samples <- rbeta(n.trials, B.successes+prior.b.alpha, B.failures+prior.b.beta)
+  
+  p.b_superior <- sum(b.samples > a.samples)/n.trials
+  return (p.b_superior)
+}
+
+ab_experiment(experiments, 3, 7)
 ```
 
 
 
+## Exercises
+
+### Problem 1
+Suppose a director of marketing with many years of experience tells you he believes very strongly that the variant without images (B) won't perform any differently than the original variant. How could you account for this in our model? Implement this change and see how your final conclusions change as well.
+
+We need to establish a prior based on the director's experience. The director thinks that the success rate of the two strategies is the same, so we want probability of success to be 0.3, the historical rate, but we will use large values than $\alpha=3$ and $\beta=7$ to gather the density near 0.3. Since he believes very strongly about this, we'll go for $\alpha=300$ and $\beta=700$.
+
+Since the assertion here is that A & B have the same success rate, we only need to specify one set of priors.
+
+Now we run our Monte Carlo simulations again with these priors.
+```{r problem 1}
+ab_experiment(experiments, 300, 700)
+```
+Under this scenario, B performs better than A 73% of the time. Still pretty strong evidence that B is, in fact, the better strategy, but not nearly as strong as our initial, weak prior scenario.
 
 ### Problem 2
-The lead designer sees your results and insists that there's no way that variant B should perform better with no images. She feels that you should assume the conversion frate for variant B is closer to 20 percent than 30 percent. Implement a solution fo this and again review the results of our analysis.
+The lead designer sees your results and insists that there's no way that variant B should perform better with no images. She feels that you should assume the conversion rate for variant B is closer to 20 percent than 30 percent. Implement a solution fo this and again review the results of our analysis.
 
+We need to establish a prior based on the designer's opinion. She thinks that the success rate of B will be closer to 0.2. We also need to have a prior for A now, since we're asserting that the two flavours have different success rates.
 
+Since she believes very strongly about this, we'll go for $\alpha=30$ and $\beta=70$ for A and $\alpha=20$ and $\beta=80$. These are strong priors than our initial weak priors, but not as strong as the director's priors.
+
+```{r problem 2}
+ab_experiment(experiments, 30,70, 20, 80)
+```
+Even with the adjusted priors using different beliefs, we see that B still comes out on top 66% of the time. This lends strong support to B outperforming A and that its success rate is higher than A's. With more data, it's likely that B would continue to outperform A, hopefully convincing the designer that B is, in fact, the better strategy.
 
 ### Problem 3
-Assume that being 95 percent certain means that your're more or less "convinced" of a hypothesis. Also assume that there's no longer any limit to the number of emails you can send in your test. If the true conversion for A is 0.25 and B is 0.3, explore how mnay samples it would take to convince the director of marketing that B was in fact superior. Explore the same for the lead designer. You can generate samples of conversions with the following R snippet:
+Assume that being 95 percent certain means that you're more or less "convinced" of a hypothesis. Also assume that there's no longer any limit to the number of emails you can send in your test. If the true conversion for A is 0.25 and B is 0.3, explore how many samples it would take to convince the director of marketing that B was in fact superior. Explore the same for the lead designer. You can generate samples of conversions with the following R snippet:
 
 ```{r}
 true.rate <- 0.25
 number.of.samples <- 100
 results <- runif(number.of.samples) <= true.rate
+```
+
+What we want to do here is provide enough data so that the 95% confidence intervals for the two strategies no longer over lap. The director and designer should be convinced if this is the case and the conversion rate for B is higher. So we don't need to compare A & B directly, we need to establish tight enough intervals, comparing at each time. We can do this using a `while` loop.
+
+```{r}
+iters <- 0
+max_iters <- 100
+continue_experiment <- TRUE
+number.of.samples <- 100
+
+A.success.count <- 36
+A.fail.count <- 114
+B.success.count <- 50
+B.fail.count <- 100
+
+true.a.rate <- 0.25
+true.b.rate <- 0.3
+while(iters < max_iters & continue_experiment) {
+  
+  A.results <- sum(runif(number.of.samples) <= true.a.rate)
+  B.results <- sum(runif(number.of.samples) <= true.b.rate)
+  
+  A.success.count <- A.success.count + A.results
+  A.fail.count <- A.fail.count + (number.of.samples - A.results)
+  
+  B.success.count <- B.success.count + B.results
+  B.fail.count <- B.fail.count + (number.of.samples - B.results)
+  
+  A.mean <- A.success.count/(A.success.count + A.fail.count)
+  B.mean <- B.success.count/(B.success.count + B.fail.count)
+  
+  if(A.mean > B.mean) {
+    A.lower.bound <- qbeta(0.025, A.success.count, A.fail.count)
+    B.upper.bound <- qbeta(0.975, A.success.count, A.fail.count)
+    
+    # the two distributions no longer overlap at the 95% confidence level,
+    # terminate the loop and print results.
+    if(A.lower.bound > B.upper.bound) {
+      continue_experiment <- FALSE
+    }
+    
+  } else {
+    A.upper.bound <- qbeta(0.975, A.success.count, A.fail.count)
+    B.lower.bound <- qbeta(0.025, B.success.count, B.fail.count)
+    
+    # the two distributions no longer overlap at the 95% confidence level,
+    # terminate the loop and print results.
+    if(B.lower.bound > A.upper.bound) {
+      continue_experiment <- FALSE
+    }
+  }
+  
+  if (!continue_experiment) {
+    A.lower.bound <- qbeta(0.025, A.success.count, A.fail.count)
+    A.upper.bound <- qbeta(0.975, A.success.count, A.fail.count)
+    B.lower.bound <- qbeta(0.025, B.success.count, B.fail.count)
+    B.upper.bound <- qbeta(0.975, B.success.count, B.fail.count)
+    print(
+      paste("Mean for A:",round(A.mean,4),"Mean for B:", round(B.mean, 4),
+          "A:95% Lower/Upper",round(A.lower.bound,4),round(A.upper.bound,4),
+          "B:95% Lower/Upper",round(B.lower.bound,4),round(B.upper.bound,4)
+      )
+    )
+  }
+  
+  iters <- iters + 1
+}
+```
+## Visuals for notes
+
+```{r}
+library(tidyverse)
+theme_set(theme_minimal())
+x <- seq(0,1,0.01)
+y <- dbeta(x, 3,7)
+tibble(x,y) |> 
+  ggplot(aes(x=x,y=y)) +
+  geom_line(linewidth=1) +
+  labs(
+    x="Conversion rate",
+    y="Density"
+  )
+```
+
+```{r}
+x <- seq(0.1,0.5,0.001)
+y1 <- dbeta(x,39,121)
+y2 <- dbeta(x,53,107)
+
+tibble(x,y1,y2) |> 
+  ggplot(aes(x=x)) +
+  geom_line(aes(y=y1), colour="red", linewidth=1) +
+  geom_line(aes(y=y2), colour="blue", linewidth=1) +
+  labs(
+    y="Density",
+    x="Conversion rate"
+  ) +
+  annotate("text", label="A", colour="red", x=0.215, y=11) +
+  annotate("text", label="B", colour="blue", x=0.358, y=10)
+```
+
+```{r}
+n.trials <- 100000
+prior.alpha <- 3
+prior.beta <- 7
+a.samples <- rbeta(n.trials, prior.alpha + 36, prior.beta + 114)
+b.samples <- rbeta(n.trials, prior.alpha + 50, prior.beta + 107)
+
+prop_b_wins <- sum(b.samples > a.samples)/n.trials
+```
+
+```{r}
+perf_metrics <- b.samples/a.samples
+tibble(x=perf_metrics) |> 
+  ggplot(aes(x=x)) + 
+  geom_histogram(colour="white") +
+  labs(
+    x="Ratio of B to A",
+    y="Frequency"
+  )
+```
+
+```{r}
+tibble(x=perf_metrics) |> 
+  ggplot(aes(x=x)) +
+  stat_ecdf(linewidth=0.75) +
+  geom_hline(yintercept = 0.25, linetype="dotted") +
+  geom_hline(yintercept = 0.75, linetype="dotted") +
+  geom_hline(yintercept = 0.5, colour="grey40") +
+  geom_hline(yintercept = 1, linetype="dashed", colour="grey40") +
+  geom_hline(yintercept = 0, linetype="dashed", colour="grey40")+
+  labs(
+    y="Cumulative probability",
+    x="Improvement"
+  )
 ```
 
 
