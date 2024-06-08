@@ -15,7 +15,7 @@ theme_set(theme_minimal())
 ## Exercises
 
 ### Problem 1
-A friend find a coin on the ground, flips it, and gets 6 heads in a row and then one tails. Give the beta distribution that describes this. Use integration to determine the probability that the true rate of flipping heads is between 0.4 and 0.6, reflecting that the coin is reasonably fair.
+A friend finds a coin on the ground, flips it, and gets 6 heads in a row and then one tails. Give the beta distribution that describes this. Use integration to determine the probability that the true rate of flipping heads is between 0.4 and 0.6, reflecting that the coin is reasonably fair.
 
 The beta distribution for this situation is $\beta(6,1)$ assuming that we call heads a success and tails a failure. The probability can be determined with the `pbeta` function.
 
@@ -47,7 +47,7 @@ The area under the curve seems to confirm that the initial calculation.
 ### Problem 2
 Come up with a prior probability that the coin *is* fair. Use a beta distribution such that there is at least a 95 percent chance that the true rate of flipping heads is between 0.4 and 0.6.
 
-We need to pick a beta with $\alpha=\beta$ and big enough to handle the data that we have observed.
+We need to pick a beta with $\alpha = \beta$ and big enough to handle the data that we have observed.
 
 ```{r}
 alpha_prior <- beta_prior <- 10
@@ -61,10 +61,10 @@ while(p_prior < 0.95 & iters < 100) {
   iters <- iters + 1
 }
 ```
-To get to a place where there is at least a 95% chance that the coin is actually reasonable fair, we need a prior that is $\beta(55,55)$. This prior leads to a probability of `r round(p_prior, 4)` that the coin is reasonably fair.
+To get to a place where there is at least a 95% chance that the coin is actually reasonably fair, we need a prior that is $\beta (55,55)$. This prior leads to a probability of `r round(p_prior, 4)` that the coin is reasonably fair.
 
 ### Exercise 3
-Now see how many more heads (with no more tails) it would take to convince you that there is a reasonable chance that the coin is *not* fair. In this case, let's say that this means that our belief in the rate of the coin being between 0.4 and 0.6 drops below 0.5.
+Now see how many more heads (with no more tails) it would take to convince you that there is a reasonable chance that the coin is **not** fair. In this case, let's say that this means that our belief in the rate of the coin being between 0.4 and 0.6 drops below 0.5.
 
 ```{r}
 alpha_prior <- beta_prior <- 55
